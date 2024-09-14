@@ -14,8 +14,8 @@ pipeline {
             steps {
                 script {
                     echo "Verifying Docker installation..."
-					def dockerVersion = sh(script: 'docker --version', returnStdout: true).trim()
-					echo "Docker Version: ${dockerVersion}"
+		    def dockerVersion = sh(script: 'sudo docker --version', returnStdout: true).trim()
+         	    echo "Docker Version: ${dockerVersion}"
 
                 }
             }
