@@ -1,15 +1,7 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_CREDENTIALS_ID = 'Password@9' // Jenkins credentials ID for Docker Hub
-        IMAGE_NAME = 'sethu904/react-app' // Docker image name
-		
-    }
-
     stages {
-       
-
         stage('Verify Docker') {
             steps {
                 script {
