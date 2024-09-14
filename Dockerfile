@@ -4,9 +4,9 @@ FROM node:18 AS build
 # Set working directory
 WORKDIR /app
 
-# Install dependencies separately to leverage Docker cache
+# Install production dependencies only
 COPY package.json package-lock.json ./
-RUN npm install --production
+RUN npm ci --production
 
 # Copy the rest of the application source code
 COPY . .
