@@ -9,13 +9,17 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm // Checks out code from the repository
+                script {
+                    echo "Checking out code..."
+                    checkout scm // Checks out code from the repository
+                }
             }
         }
 
         stage('Verify Docker') {
             steps {
                 script {
+                    echo "Verifying Docker installation..."
                     sh 'docker --version'
                     sh 'docker info'
                 }
@@ -25,7 +29,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build Docker image using Dockerfile in the same directory
+                    echo "Building Docker image..."
                     def myimage = docker.build("${IMAGE_NAME}:${env.BUILD_ID}")
                     echo "Docker image built with tag ${env.BUILD_ID}"
                 }
@@ -35,6 +39,9 @@ pipeline {
 
     post {
         always {
+            script {
+                echo "Cleaning up workspace..."
+            }
             cleanWs() // Cleans workspace after build
         }
     }
