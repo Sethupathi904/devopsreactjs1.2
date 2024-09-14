@@ -2,36 +2,32 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'sethu904/react-app'
-        GCP_PROJECT_ID_DEV = 'development-435617'
-        GCP_PROJECT_ID_TEST = 'test-435617'
-        ARTIFACT_REGISTRY = 'us-central1-docker.pkg.dev'  
-        CLOUD_RUN_SERVICE = 'react-app-service'
-        GCP_CREDENTIALS_ID = 'gcp-service-account'  // Jenkins credentials ID for the generic service account
-        PATH = "/usr/local/bin:${env.PATH}"
+        IMAGE_NAME = 'sethu904/react-app'  // Docker image name
+        GCP_PROJECT_ID_DEV = 'development-435617'  // Development environment project ID
+        GCP_PROJECT_ID_TEST = 'test-435617'  // Test environment project ID
+        ARTIFACT_REGISTRY = 'us-central1-docker.pkg.dev'  // Artifact Registry location
+        CLOUD_RUN_SERVICE = 'react-app-service'  // Cloud Run service name
+        GCP_CREDENTIALS_ID = 'gcp-service-account'  // Jenkins credentials for GCP service account
+        PATH = "/usr/local/bin:${env.PATH}"  // Ensure correct PATH for GCloud commands
     }
 
     stages {
         stage('Checkout') {
             steps {
-                script {
-                    cleanWs()
-                    checkout scm
-                }
+                checkout scm  // Checks out code from the repository
             }
         }
 
         stage('Select Environment') {
             steps {
                 script {
-                    if (env.BRANCH_NAME == 'main') {
-                        echo 'Deploying to Test Environment'
-                        env.PROJECT_ID = env.GCP_PROJECT_ID_TEST
-                        env.ARTIFACT_REGISTRY = "${ARTIFACT_REGISTRY}/test-435617/docker-repo"
-                    } else {
+                    // Determine which environment to deploy to based on branch name
+                    if (env.BRANCH_NAME == 'development') {
                         echo 'Deploying to Development Environment'
                         env.PROJECT_ID = env.GCP_PROJECT_ID_DEV
-                        env.ARTIFACT_REGISTRY = "${ARTIFACT_REGISTRY}/development-435617/docker-repo"
+                    } else {
+                        echo 'Deploying to Test Environment'
+                        env.PROJECT_ID = env.GCP_PROJECT_ID_TEST
                     }
                 }
             }
@@ -40,7 +36,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${IMAGE_NAME}:${env.BUILD_ID}")
+                    docker.build("${IMAGE_NAME}:${env.BUILD_ID}")  // Build the Docker image
                 }
             }
         }
@@ -50,11 +46,15 @@ pipeline {
                 script {
                     withCredentials([file(credentialsId: "${GCP_CREDENTIALS_ID}", variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                         sh '''
+                            # Authenticate with Google Cloud
                             gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-                            gcloud config set project $PROJECT_ID
+
+                            # Configure Docker to use the Google Cloud registry
                             gcloud auth configure-docker ${ARTIFACT_REGISTRY}
-                            docker tag ${IMAGE_NAME}:${BUILD_ID} ${ARTIFACT_REGISTRY}/${IMAGE_NAME}:${BUILD_ID}
-                            docker push ${ARTIFACT_REGISTRY}/${IMAGE_NAME}:${BUILD_ID}
+
+                            # Tag and push the Docker image to Google Artifact Registry
+                            docker tag ${IMAGE_NAME}:${BUILD_ID} ${ARTIFACT_REGISTRY}/${PROJECT_ID}/${IMAGE_NAME}:${BUILD_ID}
+                            docker push ${ARTIFACT_REGISTRY}/${PROJECT_ID}/${IMAGE_NAME}:${BUILD_ID}
                         '''
                     }
                 }
@@ -66,8 +66,9 @@ pipeline {
                 script {
                     withCredentials([file(credentialsId: "${GCP_CREDENTIALS_ID}", variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                         sh '''
+                            # Deploy the Docker image to Cloud Run
                             gcloud run deploy ${CLOUD_RUN_SERVICE} \
-                              --image=${ARTIFACT_REGISTRY}/${IMAGE_NAME}:${BUILD_ID} \
+                              --image=${ARTIFACT_REGISTRY}/${PROJECT_ID}/${IMAGE_NAME}:${BUILD_ID} \
                               --platform=managed --region=us-central1 \
                               --allow-unauthenticated --quiet
                         '''
