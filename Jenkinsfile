@@ -4,6 +4,7 @@ pipeline {
     environment {
         DOCKER_CREDENTIALS_ID = 'Password@9' // Jenkins credentials ID for Docker Hub
         IMAGE_NAME = 'sethu904/react-app' // Docker image name
+		PATH = "/usr/local/bin:${env.PATH}"
     }
 
     stages {
