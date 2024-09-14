@@ -42,8 +42,6 @@ pipeline {
         always {
             script {
                 echo "Cleaning up workspace..."
-            }
-            cleanWs() // Cleans workspace after build
-        }
+           
     }
 }
