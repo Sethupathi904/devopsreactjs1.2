@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_CREDENTIALS_ID = 'Password@9' // Jenkins credentials ID for Docker Hub
         IMAGE_NAME = 'sethu904/react-app' // Docker image name
-		PATH = "/usr/local/bin:${env.PATH}"
+		
     }
 
     stages {
@@ -14,8 +14,9 @@ pipeline {
             steps {
                 script {
                     echo "Verifying Docker installation..."
-                    sh 'docker --version'
-                    sh 'docker info'
+					def dockerVersion = sh(script: 'docker --version', returnStdout: true).trim()
+					echo "Docker Version: ${dockerVersion}"
+
                 }
             }
         }
