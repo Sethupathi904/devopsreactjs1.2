@@ -25,7 +25,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build Docker image using Dockerfile
+                    // Build Docker image using Dockerfile in the same directory
                     def myimage = docker.build("${IMAGE_NAME}:${env.BUILD_ID}")
                     echo "Docker image built with tag ${env.BUILD_ID}"
                 }
