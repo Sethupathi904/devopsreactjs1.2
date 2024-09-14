@@ -50,7 +50,7 @@ pipeline {
             }
         }
 
-        stage('Push Docker Image') {
+        stage('Push Docker Image to Artifact Registry') {
             steps {
                 script {
                     echo "Push Docker Image to Google Artifact Registry"
