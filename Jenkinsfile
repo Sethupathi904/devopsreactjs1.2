@@ -45,12 +45,15 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    myimage = docker.build("${IMAGE_NAME}:${env.BUILD_ID}")
+                    echo "Building Docker Image"
+                    sh 'pwd'
+                    sh 'ls -ltr'
+                    myimage = docker.build("${IMAGE_NAME}:${env.BUILD_ID}", "--file Dockerfile .")
                 }
             }
         }
 
-        stage('Push Docker Image to Artifact Registry') {
+        stage('Push Docker Image') {
             steps {
                 script {
                     echo "Push Docker Image to Google Artifact Registry"
