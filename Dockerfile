@@ -1,28 +1,21 @@
-# Stage 1: Build the ReactJS application
-FROM node:18 AS build
+# Use an official Node.js runtime as a parent image
+FROM node:14
 
-# Set working directory
-WORKDIR /app
+# Set the working directory in the container
+WORKDIR /usr/src/app
 
-# Install production dependencies only
+# Copy package.json and package-lock.json
 COPY package.json package-lock.json ./
-RUN npm ci --only=production
+
+# Install dependencies
+RUN npm install
 
 # Copy the rest of the application source code
 COPY . .
 
-# Build the React application
-ENV NODE_OPTIONS=--openssl-legacy-provider
+# Run the build script
 RUN npm run build
 
-# Stage 2: Serve the ReactJS application with Nginx
-FROM nginx:alpine
-
-# Copy built React app from the 'build' stage to Nginx's HTML directory
-COPY --from=build /app/build /usr/share/nginx/html
-
-# Expose port 80 to serve the app
-EXPOSE 80
-
-# Start Nginx in the foreground (default Nginx command)
-CMD ["nginx", "-g", "daemon off;"]
+# Expose port and define the command to run the app
+EXPOSE 3000
+CMD ["npm", "start"]

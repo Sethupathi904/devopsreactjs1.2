@@ -5,10 +5,10 @@
   "author": "First Last <sethupathi904@gmail.com>",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "echo 'Add your build command here'"
   },
   "dependencies": {
     "express": "^4.16.1"
   }
-  
 }
