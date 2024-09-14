@@ -42,6 +42,8 @@ pipeline {
         always {
             script {
                 echo "Cleaning up workspace..."
+            }
            
+        }
     }
 }
