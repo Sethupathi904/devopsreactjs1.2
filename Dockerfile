@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Install production dependencies only
 COPY package.json package-lock.json ./
-RUN npm ci --production
+RUN npm ci --omit=dev
 
 # Copy the rest of the application source code
 COPY . .
